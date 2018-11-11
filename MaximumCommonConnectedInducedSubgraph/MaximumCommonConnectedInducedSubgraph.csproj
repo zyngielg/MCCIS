@@ -5,4 +5,10 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Update="Graphs\g2.csv">
+      <Generator>MSDataSetGenerator</Generator>
+    </None>
+  </ItemGroup>
+
 </Project>
