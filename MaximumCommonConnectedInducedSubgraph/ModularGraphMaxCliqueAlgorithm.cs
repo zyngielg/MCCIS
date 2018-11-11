@@ -54,7 +54,7 @@ namespace MaximumCommonConnectedInducedSubgraph
             for(int i = 0; i< vertices.Count; i++)
             {
                 graph.GraphData[vertices[i], alpha] = 0;
-                graph.GraphData[alpha, alpha] = 0;
+                graph.GraphData[alpha, vertices[i]] = 0;
 
                 graph.verticesDegrees[vertices[i]]--;
             }
