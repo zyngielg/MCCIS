@@ -39,32 +39,27 @@ namespace MaximumCommonConnectedInducedSubgraph
                     if(graph.GraphData[vertices[i], vertices[j]] == 1)
                     {
                         g[vertices[i], vertices[j]] = 1;
-                        g[vertices[j], vertices[i]] = 1;
-
-                        //// deleting alpha from input Graph
-                        //graph.GraphData[vertices[i], vertices[j]] = 0;
-                        //graph.GraphData[vertices[j], vertices[i]] = 0;
-                       
-                        //graph.verticesDegrees[vertices[i]]--;
-                                             
+                        g[vertices[j], vertices[i]] = 1;                    
                     }                    
                 }
             }
 
-            for(int i = 0; i< vertices.Count; i++)
+            // deleting alpha from input Graph
+
+            for (int i = 0; i< vertices.Count; i++)
             {
                 graph.GraphData[vertices[i], alpha] = 0;
                 graph.GraphData[alpha, vertices[i]] = 0;
 
                 graph.verticesDegrees[vertices[i]]--;
             }
-
             graph.verticesDegrees[alpha] = 0;
-            // deleting alpha from input Graph
             graph.Size--;
 
-            var gPrim = new Graph(g);
-            gPrim.Size = vertices.Count;
+            var gPrim = new Graph(g)
+            {
+                Size = vertices.Count
+            };
 
             return gPrim;
         }
