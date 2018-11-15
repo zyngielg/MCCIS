@@ -7,46 +7,31 @@ namespace MaximumCommonConnectedInducedSubgraph
 {
     public class Graph
     {
-        private int[,] _graph;
-        private int _size;
-        private int _initialSize;
+        public int[,] GraphData;
+        public int Size;
 
         public Dictionary<int, int> verticesDegrees;
-        public Dictionary<int, List<int>> verticesEdges;
-
-        public int Size
-        {
-            get { return _size; }
-            set { _size = value; }
-        }
-
-        public int[,] GraphData
-        {
-            get { return _graph; }
-        }
 
         public Graph()
         {
             verticesDegrees = new Dictionary<int, int>();
-            verticesEdges = new Dictionary<int, List<int>>();
         }
 
         public Graph(int[,] graph)
         {
-            _graph = graph;
-            _size = graph.GetLength(0);
+            GraphData = graph;
+            Size = graph.GetLength(0);
             verticesDegrees = new Dictionary<int, int>();
-            verticesEdges = new Dictionary<int, List<int>>();
             AssignVerticesDegrees();
         }
 
         public void FillEdgesFromCsv(string csvPath)
         {
             var file = File.ReadAllLines(csvPath);
-            _size = file.Length;
-            var g = new int[_size, _size];
+            Size = file.Length;
+            var g = new int[Size, Size];
 
-            for (int i = 0; i < _size; i++)
+            for (int i = 0; i < Size; i++)
             {
                 var currentLine = file[i].Split(',');
                 for (int j = 0; j < currentLine.Length; j++)
@@ -54,7 +39,7 @@ namespace MaximumCommonConnectedInducedSubgraph
                     g[i, j] = currentLine[j].Equals("1") ? 1 : 0;
                 }
             }
-            _graph = g;
+            GraphData = g;
 
             AssignVerticesDegrees();
         }
@@ -63,13 +48,13 @@ namespace MaximumCommonConnectedInducedSubgraph
         {
             var potentialClique = new List<int>();
 
-            for (int i = 0; i < _graph.GetLength(0); i++)
+            for (int i = 0; i < GraphData.GetLength(0); i++)
             {
                 int sum = 0;
 
-                for (int j = 0; j < _graph.GetLength(1); j++)
+                for (int j = 0; j < GraphData.GetLength(1); j++)
                 {
-                    sum += _graph[i, j];
+                    sum += GraphData[i, j];
                 }
 
                 if (sum > 0)
@@ -80,7 +65,7 @@ namespace MaximumCommonConnectedInducedSubgraph
 
             foreach (var vertex in potentialClique)
             {
-                if (verticesDegrees[vertex] != _size - 1)
+                if (verticesDegrees[vertex] != Size - 1)
                 {
                     return false;
                 }
@@ -93,16 +78,16 @@ namespace MaximumCommonConnectedInducedSubgraph
         {
             var clique = new List<int>();
 
-            for (int i = 0; i < _graph.GetLength(0); i++)
+            for (int i = 0; i < GraphData.GetLength(0); i++)
             {
                 int sum = 0;
 
-                for (int j = 0; j < _graph.GetLength(1); j++)
+                for (int j = 0; j < GraphData.GetLength(1); j++)
                 {
-                    sum += _graph[i, j];
+                    sum += GraphData[i, j];
                 }
 
-                if (sum == _size - 1)
+                if (sum == Size - 1)
                 {
                     clique.Add(i);
                 }
@@ -113,15 +98,15 @@ namespace MaximumCommonConnectedInducedSubgraph
 
         public void PrintGraph()
         {
-            for (int i = 0; i < _graph.GetLength(0); i++)
+            for (int i = 0; i < GraphData.GetLength(0); i++)
             {
-                for (int j = 0; j < _graph.GetLength(0); j++)
+                for (int j = 0; j < GraphData.GetLength(0); j++)
                 {
                     if (j > 0)
                     {
                         Console.Write(",");
                     }
-                    Console.Write(_graph[i, j]);
+                    Console.Write(GraphData[i, j]);
                 }
                 Console.WriteLine();
             }
@@ -129,14 +114,14 @@ namespace MaximumCommonConnectedInducedSubgraph
 
         private void AssignVerticesDegrees()
         {
-            for (int i = 0; i < _size; i++)
+            for (int i = 0; i < Size; i++)
             {
                 int sum = 0;
                 var edges = new List<int>();
 
-                for (int j = 0; j < _size; j++)
+                for (int j = 0; j < Size; j++)
                 {
-                    if (_graph[i, j] == 1)
+                    if (GraphData[i, j] == 1)
                     {
                         edges.Add(j);
                         sum++;
@@ -144,10 +129,7 @@ namespace MaximumCommonConnectedInducedSubgraph
                 }
 
                 verticesDegrees.Add(i, sum);
-                verticesEdges.Add(i, edges);
             }
         }
-
-
     }
 }
