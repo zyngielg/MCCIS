@@ -23,30 +23,70 @@ namespace MaximumCommonConnectedInducedSubgraph
             biggestMCCIS_FoundMapping = new List<(int, int)>();
         }
 
+        public int PerformMcGregorForVerticesAndEdges()
+        {
+            int totalSum = 0;
+            FindMCCIS_ForVerticesAndEdges(state, ref biggestMCCIS_FoundMapping, ref totalSum);
+            return totalSum;
+        }
+
         public int PerformMcGregorForVertices()
         {
             FindMCCIS_ForVertices(state, ref biggestMCCIS_FoundMapping);
             return biggestMCCIS_FoundMapping.Count;
         }
 
-        void FindMCCIS_ForVertices(State state, ref List<(int, int)> bestSolution)
+        void FindMCCIS_ForVerticesAndEdges(State state, ref List<(int, int)> bestSolution, ref int bestSolutionCount)
         {
-            //(int, int) nextPair;
-
             foreach (var nextPair in GetNextPair(state))
             {
-                //nextPair = (state.G1Vertices[i], state.G2Vertices[j]);
                 if (!IsPairFeasible(state, nextPair))
                     continue;
 
-                var newState = AddPair2(state, nextPair);
-                if (newState.Mapping.Count > bestSolution.Count)
-                    bestSolution = newState.Mapping.ConvertAll(a => a); // save a copy of the best solution so far
+                AddPair(state, nextPair); // state changes here (one level lower in search tree)
+                if (state.Mapping.Count + GetEdgesNumberInSubgraph(state) > bestSolutionCount)
+                {
+                    bestSolution = state.Mapping.ConvertAll(a => a); // save a copy of the best solution so far
+                    bestSolutionCount = state.Mapping.Count + GetEdgesNumberInSubgraph(state);
+                }
 
-                if (!PruningCondition(newState))
-                    FindMCCIS_ForVertices(newState, ref bestSolution);
+                if (!PruningCondition(state))
+                    FindMCCIS_ForVerticesAndEdges(state, ref bestSolution, ref bestSolutionCount);
 
-                //BackTrack(newState);
+                BackTrack(state);
+            }
+        }
+
+        int GetEdgesNumberInSubgraph(State state)
+        {
+            int sum = 0;
+            var g1 = state.G1.GraphData;
+            var verticesFrom_G1 = state.Mapping.Select(el => el.Item1).ToList();
+            for (int i = 0; i < verticesFrom_G1.Count - 1; i++)
+            {
+                for (int j = i + 1; j < verticesFrom_G1.Count; j++)
+                {
+                    sum += g1[verticesFrom_G1[i], verticesFrom_G1[j]];
+                }
+            }
+            return sum;
+        }
+
+        void FindMCCIS_ForVertices(State state, ref List<(int, int)> bestSolution)
+        {
+            foreach (var nextPair in GetNextPair(state))
+            {
+                if (!IsPairFeasible(state, nextPair))
+                    continue;
+
+                AddPair(state, nextPair);
+                if (state.Mapping.Count > bestSolution.Count)
+                    bestSolution = state.Mapping.ConvertAll(a => a); // save a copy of the best solution so far
+
+                if (!PruningCondition(state))
+                    FindMCCIS_ForVertices(state, ref bestSolution);
+
+                BackTrack(state);
             }
             
         }
@@ -99,9 +139,9 @@ namespace MaximumCommonConnectedInducedSubgraph
             var lastIdx = state.Mapping.Count - 1;
             var n = state.Mapping.ElementAt(lastIdx);
             state.G1Vertices.Add(n.Item1);
-            state.G1Vertices.Sort();
+            //state.G1Vertices.Sort();
             state.G2Vertices.Add(n.Item2);
-            state.G2Vertices.Sort();
+            //state.G2Vertices.Sort();
             state.Mapping.RemoveAt(lastIdx);
         }
 
