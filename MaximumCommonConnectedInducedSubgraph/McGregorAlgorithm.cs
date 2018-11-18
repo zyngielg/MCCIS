@@ -61,12 +61,15 @@ namespace MaximumCommonConnectedInducedSubgraph
         {
             int sum = 0;
             var g1 = state.G1.GraphData;
+            var g2 = state.G2.GraphData;
             var verticesFrom_G1 = state.Mapping.Select(el => el.Item1).ToList();
+            var verticesFrom_G2 = state.Mapping.Select(el => el.Item2).ToList();
             for (int i = 0; i < verticesFrom_G1.Count - 1; i++)
             {
                 for (int j = i + 1; j < verticesFrom_G1.Count; j++)
                 {
-                    sum += g1[verticesFrom_G1[i], verticesFrom_G1[j]];
+                    if (g1[verticesFrom_G1[i], verticesFrom_G1[j]] == 1 && g2[verticesFrom_G2[i], verticesFrom_G2[j]] == 1)
+                        sum++;
                 }
             }
             return sum;
@@ -104,18 +107,34 @@ namespace MaximumCommonConnectedInducedSubgraph
 
         bool IsPairFeasible(State state, (int,int) n)
         {
-            int n1ConnectionsToMCCIS = 0;
-            int n2ConnectionsToMCCIS = 0;
+            var g1 = state.G1.GraphData;
+            var g2 = state.G2.GraphData;
+            bool n1Feasible = false, n2Feasible = false;
 
             foreach (var pairMapped in state.Mapping)
             {
                 if (state.G1.GraphData[n.Item1, pairMapped.Item1] != 0)
-                    n1ConnectionsToMCCIS++;
+                    n1Feasible = true;
                 if (state.G2.GraphData[n.Item2, pairMapped.Item2] != 0)
-                    n2ConnectionsToMCCIS++;
+                    n2Feasible = true;
+                if (n1Feasible && n2Feasible)
+                    break;
             }
 
-            return n1ConnectionsToMCCIS == n2ConnectionsToMCCIS;
+            return state.G1Vertices.Count == g1.GetLength(0) || n1Feasible && n2Feasible;
+
+            //int n1ConnectionsToMCCIS = 0;
+            //int n2ConnectionsToMCCIS = 0;
+
+            //foreach (var pairMapped in state.Mapping)
+            //{
+            //    if (state.G1.GraphData[n.Item1, pairMapped.Item1] != 0)
+            //        n1ConnectionsToMCCIS++;
+            //    if (state.G2.GraphData[n.Item2, pairMapped.Item2] != 0)
+            //        n2ConnectionsToMCCIS++;
+            //}
+
+            //return n1ConnectionsToMCCIS > 0 && n1ConnectionsToMCCIS == n2ConnectionsToMCCIS;
         }
 
         void AddPair(State state, (int, int) n)
