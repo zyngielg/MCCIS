@@ -5,13 +5,20 @@ using System.Text;
 
 namespace MaximumCommonConnectedInducedSubgraph
 {
-    public class ModularGraphMaxCliqueAlgorithm
+    public class ModularGraphMaxCliqueAlgorithm : IAlgorithm
     {
         private int _maxC;
-        public List<int> _maxCP;
+        private List<int> _maxCP;
         private Graph _g1;
         private Graph _g2;
-        public Graph _modularGraph;
+        private Graph _modularGraph;
+        private KeyValuePair<int, int>[] mapping;
+
+        public ModularGraphMaxCliqueAlgorithm()
+        {
+            _modularGraph = new Graph();
+            _maxCP = new List<int>();
+        }
 
         public ModularGraphMaxCliqueAlgorithm(Graph g1, Graph g2)
         {
@@ -21,12 +28,36 @@ namespace MaximumCommonConnectedInducedSubgraph
             _maxCP = new List<int>();            
         }
 
-        public void CreateModularGraph()
+        public (int[], int[]) GetMaximalCommonSubgraphMapping(string g1Path, string g2Path)
+        {
+            _g1 = new Graph();
+            _g2 = new Graph();
+            _g1.FillEdgesFromCsv(g1Path);
+            _g2.FillEdgesFromCsv(g2Path);
+
+            CreateModularGraph();
+
+            MaxCliquePolynomial(_modularGraph);
+
+            var g1Mapping = new int[_maxCP.Count];
+            var g2Mapping = new int[_maxCP.Count];
+
+            for (int i = 0; i < _maxCP.Count; i++)
+            {
+                g1Mapping[i] = mapping[_maxCP[i]].Key;
+                g2Mapping[i] = mapping[_maxCP[i]].Value;
+
+            }
+
+            return (g1Mapping, g2Mapping);
+        }
+
+        private void CreateModularGraph()
         {
             _modularGraph.GraphData = new int[_g1.Size * _g2.Size, _g1.Size * _g2.Size];
             _modularGraph.Size = _g1.Size * _g2.Size;
 
-            KeyValuePair<int, int>[] mapping = new KeyValuePair<int, int>[_g1.Size * _g2.Size];
+            mapping = new KeyValuePair<int, int>[_g1.Size * _g2.Size];
 
             int counter = 0;
 
@@ -52,7 +83,7 @@ namespace MaximumCommonConnectedInducedSubgraph
 
                         if (_g1.GraphData[mapping[i].Key, mapping[j].Key] == 0 && _g2.GraphData[mapping[i].Value, mapping[j].Value] == 0)
                         {
-                            _modularGraph.GraphData[i, j] = 1; // todo: change it so it also syas if the edge in modular is valid
+                            _modularGraph.GraphData[i, j] = 2; 
 
                         }
                     }
@@ -84,7 +115,7 @@ namespace MaximumCommonConnectedInducedSubgraph
                     {
                         g[vertices[i], vertices[j]] = 1;
                         g[vertices[j], vertices[i]] = 1;                    
-                    }                    
+                    }
                 }
             }
 
@@ -108,15 +139,17 @@ namespace MaximumCommonConnectedInducedSubgraph
             return gPrim;
         }
 
-
-        public void MaxCliquePolynomial(Graph g)
+        private void MaxCliquePolynomial(Graph g)
         {
-            if(g.IsClique()) // TODO: add checking if it contains edges from G1 and G2
+            if(g.IsClique())
             {
-                if(g.Size > _maxC)
+                if(IsGraphConnected(g))
                 {
-                    _maxC = g.Size;
-                    _maxCP = g.GetCliquesVertices();
+                    if (g.Size > _maxC)
+                    {
+                        _maxC = g.Size;
+                        _maxCP = g.GetCliquesVertices();
+                    }
                 }
             }
             else
@@ -130,6 +163,33 @@ namespace MaximumCommonConnectedInducedSubgraph
                     MaxCliquePolynomial(g);
                 }
             }            
+        }
+
+        private bool IsGraphConnected(Graph g)
+        {
+            var potentialClique = g.GetCliquesVertices();
+            
+            for(int i=0; i<potentialClique.Count; i++)
+            {
+                var counter = 0;
+                for (int j=0; j<potentialClique.Count; j++)
+                {
+                    if(i!=j)
+                    {
+                        if(g.GraphData[potentialClique[i], potentialClique[j]] == 1)
+                        {
+                            counter++;
+                        }
+                    }
+                }
+
+                if(counter == 0)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }
