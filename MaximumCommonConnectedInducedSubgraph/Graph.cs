@@ -25,7 +25,7 @@ namespace MaximumCommonConnectedInducedSubgraph
             AssignVerticesDegrees();
         }
 
-        public void FillEdgesFromCsv(string csvPath)
+        public void FillEdgesFromCsv(string csvPath, bool fillHalf = false)
         {
             var file = File.ReadAllLines(csvPath);
             Size = file.Length;
@@ -36,10 +36,22 @@ namespace MaximumCommonConnectedInducedSubgraph
                 var currentLine = file[i].Split(',');
                 for (int j = 0; j < currentLine.Length; j++)
                 {
-                    g[i, j] = currentLine[j].Equals("1") ? 1 : 0;
+                    g[i, j] = Convert.ToInt32(currentLine[j]);
                 }
             }
             GraphData = g;
+
+            if(fillHalf)
+            {
+                for(int i=0; i< Size; i++)
+                {
+                    for(int j=0; j < i; j++)
+                    {
+                        g[i, j] = g[j, i];
+                    }
+                }
+            }
+
 
             AssignVerticesDegrees();
         }
@@ -112,24 +124,24 @@ namespace MaximumCommonConnectedInducedSubgraph
             }
         }
 
-        private void AssignVerticesDegrees()
+        public void AssignVerticesDegrees()
         {
             for (int i = 0; i < Size; i++)
             {
                 int sum = 0;
-                var edges = new List<int>();
+                //var edges = new List<int>();
 
                 for (int j = 0; j < Size; j++)
                 {
-                    if (GraphData[i, j] == 1)
+                    if (GraphData[i, j] > 0)
                     {
-                        edges.Add(j);
+                        //edges.Add(j);
                         sum++;
                     }
                 }
 
                 verticesDegrees.Add(i, sum);
             }
-        }
+        }        
     }
 }
