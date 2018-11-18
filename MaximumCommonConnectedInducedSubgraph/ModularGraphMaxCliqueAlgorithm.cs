@@ -11,45 +11,20 @@ namespace MaximumCommonConnectedInducedSubgraph
         public List<int> _maxCP;
         private Graph _g1;
         private Graph _g2;
-        private Graph _modularGraph;
+        public Graph _modularGraph;
 
         public ModularGraphMaxCliqueAlgorithm(Graph g1, Graph g2)
         {
             _g1 = g1;
             _g2 = g2;
+            _modularGraph = new Graph();
             _maxCP = new List<int>();            
         }
 
         public void CreateModularGraph()
         {
-            var g = new Graph();
-
-            g.GraphData = new int[_g1.Size * _g2.Size, _g1.Size * _g2.Size];
-            g.Size = _g1.Size * _g2.Size;
-
-            //Dictionary<int, KeyValuePair<int, int>> mapping = new Dictionary<int, KeyValuePair<int, int>>();
-
-            //int counter = 0;
-
-            //for(int i=0; i<_g1.Size; i++)
-            //{
-            //    for(int j=0; j<_g2.Size; j++)
-            //    {
-            //        mapping.Add(counter, new KeyValuePair<int, int>(i, j));
-            //        counter++;
-            //    }
-            //}
-
-            //for(int i=0; i<g.Size; i++)
-            //{
-            //    for(int j=0; j<g.Size; j++)
-            //    {
-            //        if(_g1.GraphData[mapping[i].Key, mapping[j].Key] == 1 && _g2.GraphData[mapping[i].Value, mapping[j].Value] == 1)
-            //        {
-
-            //        }
-            //    }
-            //}
+            _modularGraph.GraphData = new int[_g1.Size * _g2.Size, _g1.Size * _g2.Size];
+            _modularGraph.Size = _g1.Size * _g2.Size;
 
             KeyValuePair<int, int>[] mapping = new KeyValuePair<int, int>[_g1.Size * _g2.Size];
 
@@ -64,31 +39,26 @@ namespace MaximumCommonConnectedInducedSubgraph
                 }
             }
 
-            for (int i = 0; i < g.Size; i++)
+            for (int i = 0; i < _modularGraph.Size; i++)
             {
-                for (int j = 0; j < g.Size; j++)
+                for (int j = 0; j < _modularGraph.Size; j++)
                 {
                     if (mapping[i].Key != mapping[j].Key && mapping[i].Value != mapping[j].Value)
                     {
                         if (_g1.GraphData[mapping[i].Key, mapping[j].Key] == 1 && _g2.GraphData[mapping[i].Value, mapping[j].Value] == 1)
                         {
-                            g.GraphData[i, j] = 1;
+                            _modularGraph.GraphData[i, j] = 1;
                         }
 
                         if (_g1.GraphData[mapping[i].Key, mapping[j].Key] == 0 && _g2.GraphData[mapping[i].Value, mapping[j].Value] == 0)
                         {
-                            g.GraphData[i, j] = 1; // todo: change it so it also syas if the edge in modular is valid
+                            _modularGraph.GraphData[i, j] = 1; // todo: change it so it also syas if the edge in modular is valid
 
                         }
                     }
                 }
             }
-
-            g.PrintGraph();
-            int xxx = 2;
-
-
-            //g.PrintGraph();
+            _modularGraph.AssignVerticesDegrees();
         }
 
         private Graph HighestSubgraphContainingAlpha(Graph graph, int alpha)
