@@ -8,10 +8,10 @@ namespace MaximumCommonConnectedInducedSubgraph
     public class ModularGraphMaxCliqueAlgorithm : IAlgorithm
     {
         private int _maxC;
-        private List<int> _maxCP;
         private Graph _g1;
         private Graph _g2;
-        private Graph _modularGraph;
+        public Graph _modularGraph;
+        public List<int> _maxCP;
         private KeyValuePair<int, int>[] mapping;
 
         public ModularGraphMaxCliqueAlgorithm()
@@ -52,7 +52,7 @@ namespace MaximumCommonConnectedInducedSubgraph
             return (g1Mapping, g2Mapping);
         }
 
-        private void CreateModularGraph()
+        public void CreateModularGraph()
         {
             _modularGraph.GraphData = new int[_g1.Size * _g2.Size, _g1.Size * _g2.Size];
             _modularGraph.Size = _g1.Size * _g2.Size;
@@ -90,6 +90,32 @@ namespace MaximumCommonConnectedInducedSubgraph
                 }
             }
             _modularGraph.AssignVerticesDegrees();
+        }
+
+        public void MaxCliquePolynomial(Graph g)
+        {
+            if (g.IsClique())
+            {
+                if (IsGraphConnected(g))
+                {
+                    if (g.Size > _maxC)
+                    {
+                        _maxC = g.Size;
+                        _maxCP = g.GetCliquesVertices();
+                    }
+                }
+            }
+            else
+            {
+                var alpha = g.verticesDegrees.OrderBy(kvp => kvp.Value).FirstOrDefault(x => x.Value > 0).Key;
+                var highestSubgraphContainingAlpha = HighestSubgraphContainingAlpha(g, alpha);
+                MaxCliquePolynomial(highestSubgraphContainingAlpha);
+
+                if (g.Size > 0)
+                {
+                    MaxCliquePolynomial(g);
+                }
+            }
         }
 
         private Graph HighestSubgraphContainingAlpha(Graph graph, int alpha)
@@ -139,31 +165,6 @@ namespace MaximumCommonConnectedInducedSubgraph
             return gPrim;
         }
 
-        private void MaxCliquePolynomial(Graph g)
-        {
-            if(g.IsClique())
-            {
-                if(IsGraphConnected(g))
-                {
-                    if (g.Size > _maxC)
-                    {
-                        _maxC = g.Size;
-                        _maxCP = g.GetCliquesVertices();
-                    }
-                }
-            }
-            else
-            {
-                var alpha = g.verticesDegrees.OrderBy(kvp => kvp.Value).FirstOrDefault(x=>x.Value > 0).Key;
-                var highestSubgraphContainingAlpha = HighestSubgraphContainingAlpha(g, alpha); 
-                MaxCliquePolynomial(highestSubgraphContainingAlpha);
-
-                if(g.Size > 0)
-                {
-                    MaxCliquePolynomial(g);
-                }
-            }            
-        }
 
         private bool IsGraphConnected(Graph g)
         {
