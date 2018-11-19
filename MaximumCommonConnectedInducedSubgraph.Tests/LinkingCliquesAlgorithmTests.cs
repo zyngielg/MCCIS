@@ -46,11 +46,13 @@ namespace MaximumCommonConnectedInducedSubgraph.Tests
             #endregion
         }
 
-        [Fact]
-        public void TestTemplate()
+        [Theory]
+        [InlineData("b2")]
+        [InlineData("b1")]
+        public void TwoSameGraphsAsConnectedCliques(string name)
         {
             #region Give
-            var gPath = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\b2.csv";
+            var gPath = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\" + name + ".csv";
 
             var alg = new LinkingCliquesAlgorithm();
             var g = new Graph();
@@ -67,5 +69,57 @@ namespace MaximumCommonConnectedInducedSubgraph.Tests
 
             #endregion
         }
+
+        [Fact]
+        public void TwoDifferentGraphsAsConnectedCliques()
+        {
+            #region Give
+            var g1Name = "b1";
+            var g2Name = "b2";
+
+            var g1Path = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\" + g1Name + ".csv";
+            var g2Path = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\" + g2Name + ".csv";
+
+            var alg = new LinkingCliquesAlgorithm();
+            #endregion
+
+            #region When
+            int[] x1;
+            int[] x2;
+            (x1, x2) = alg.GetMaximalCommonSubgraphMapping(g1Path, g2Path);
+            #endregion
+
+            #region Then
+            Assert.Equal(x1.Length, x2.Length);
+            for (int i = 0; i < x1.Length; i++)
+            {
+                Assert.Equal(x1[i], x2[i]);
+            }
+            #endregion
+        }
+        //[Fact] 
+        //public void TwoDifferentGraphsAsConnectedCliquesWithoutCommonCliques()
+        //{
+        //    #region Give
+        //    var gPath = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\b2.csv";
+
+        //    var alg = new LinkingCliquesAlgorithm();
+        //    var g = new Graph();
+        //    g.FillEdgesFromCsv(gPath);
+        //    #endregion
+
+        //    #region When
+        //    int[] x1;
+        //    int[] x2;
+        //    (x1, x2) = alg.GetMaximalCommonSubgraphMapping(gPath, gPath);
+        //    #endregion
+
+        //    #region Then
+
+        //    #endregion
+        //}
+
+
+
     }
 }
