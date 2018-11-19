@@ -36,8 +36,7 @@ namespace MaximumCommonConnectedInducedSubgraph
             GetGraphCliques(new Graph((int[,])_g1.GraphData.Clone()), _g1Cliques);
             GetGraphCliques(new Graph((int[,])_g2.GraphData.Clone()), _g2Cliques);
 
-            bool[] g1UsedCliques = new bool[_g1Cliques.Count];
-            bool[] g2UsedCliques = new bool[_g2Cliques.Count];
+            bool wasSwap = false;           
 
             // TODO: check if swap works
             if (_g2Cliques[0].Count < _g1Cliques[0].Count)
@@ -46,11 +45,15 @@ namespace MaximumCommonConnectedInducedSubgraph
                 _g2Cliques = new List<List<int>>(_g1Cliques);
                 _g1Cliques = new List<List<int>>(x);
 
-                var y = new Dictionary<int, int>(_g2.verticesDegrees);
-                _g2.verticesDegrees = new Dictionary<int, int>(_g1.verticesDegrees);
-                _g1.verticesDegrees = new Dictionary<int, int>(y);
-            }
+                var y = new Graph((int[,])_g1.GraphData.Clone());
+                _g1 = new Graph((int[,])_g2.GraphData.Clone());
+                _g2 = new Graph(y.GraphData);
 
+                wasSwap = true;
+
+            }
+            bool[] g1UsedCliques = new bool[_g1Cliques.Count];
+            bool[] g2UsedCliques = new bool[_g2Cliques.Count];
             //_g1Clique[0] < _g2Clique[0]
             var alreadyMapped = false;
             // TODO: optimalization: remove from g2cliques those which are bigger than current g1clique[i]
@@ -137,7 +140,7 @@ namespace MaximumCommonConnectedInducedSubgraph
                                                 {
                                                     foreach (var sg2vertex in smallG2)
                                                     {
-                                                        if (_g2.GraphData[localVertexMapping[j][2], sg2vertex] > 0)
+                                                        if (_g2.GraphData[localVertexMapping[j][1], sg2vertex] > 0)
                                                         {
                                                             verticesMappings.Add(new KeyValuePair<int, int>(sg1vertex, sg2vertex));
                                                             _g1.verticesDegrees[sg1vertex]--;
