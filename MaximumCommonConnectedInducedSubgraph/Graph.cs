@@ -141,6 +141,48 @@ namespace MaximumCommonConnectedInducedSubgraph
 
                 verticesDegrees.Add(i, sum);
             }
-        }        
+        }
+
+        public bool IsGraphConnected()
+        {
+            var potentialClique = GetCliquesVertices();
+
+            for (int i = 0; i < potentialClique.Count; i++)
+            {
+                var counter = 0;
+                for (int j = 0; j < potentialClique.Count; j++)
+                {
+                    if (i != j)
+                    {
+                        if (GraphData[potentialClique[i], potentialClique[j]] == 1)
+                        {
+                            counter++;
+                        }
+                    }
+                }
+
+                if (counter == 0)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public bool AnyEdgesLeft()
+        {
+            for(int i = 0; i<GraphData.GetLength(0); i++)
+            {
+                for (int j = 0; j < GraphData.GetLength(0); j++)
+                {
+                    if(GraphData[i, j] > 0)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
     }
 }
