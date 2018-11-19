@@ -36,7 +36,8 @@ namespace MaximumCommonConnectedInducedSubgraph
                 var currentLine = file[i].Split(',');
                 for (int j = 0; j < currentLine.Length; j++)
                 {
-                    g[i, j] = Convert.ToInt32(currentLine[j]);
+                    if(currentLine[j] != "")
+                        g[i, j] = Convert.ToInt32(currentLine[j]);
                 }
             }
             GraphData = g;
@@ -129,13 +130,11 @@ namespace MaximumCommonConnectedInducedSubgraph
             for (int i = 0; i < Size; i++)
             {
                 int sum = 0;
-                //var edges = new List<int>();
 
                 for (int j = 0; j < Size; j++)
                 {
                     if (GraphData[i, j] > 0)
                     {
-                        //edges.Add(j);
                         sum++;
                     }
                 }
