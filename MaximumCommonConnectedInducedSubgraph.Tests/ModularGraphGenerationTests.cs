@@ -42,7 +42,7 @@ namespace MaximumCommonConnectedInducedSubgraph.Tests.ModularGraphMaxCliqueAlgor
             {
                 for (int j = 0; j < expectedResult.Size; j++)
                 {
-                    Assert.Equal(expectedResult.GraphData[i, j], result.GraphData[i, j]);
+                    Assert.Equal(expectedResult.GraphData[i, j] > 0, result.GraphData[i, j] > 0);
                 }
             }
 

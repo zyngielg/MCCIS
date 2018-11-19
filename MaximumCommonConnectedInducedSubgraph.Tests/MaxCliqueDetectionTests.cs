@@ -19,10 +19,10 @@ namespace MaximumCommonConnectedInducedSubgraph.Tests
 
             var g = new Graph();
 
-
             g.FillEdgesFromCsv(gPath);
 
             var alg = new ModularGraphMaxCliqueAlgorithm();
+
             alg.MaxCliquePolynomial(g);
 
             #region Then
@@ -32,8 +32,6 @@ namespace MaximumCommonConnectedInducedSubgraph.Tests
                 Assert.Equal(expectedResult[i], alg._maxCP[i]);
             }
             #endregion
-
-
         }
     }
 }
