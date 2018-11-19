@@ -6,7 +6,7 @@ namespace MaximumCommonConnectedInducedSubgraph
     {
         static void Main(string[] args)
         {
-            string parametersUsage = "  <alg_opt>:\n\t 0: accurate McGregor algorithm\n\t 1: approximate algorithm based on finding maximal clique in a modular product of two input graphs\n\t 2: approximate algorithm based on merging cliques created from input graphs";
+            string parametersUsage = "  <alg_opt>:\n\t0: accurate McGregor algorithm: vertices criterion\n\t0: accurate McGregor algorithm: sum of vertices and edges criterion\n\t2: approximate algorithm based on finding maximal clique in a modular product of two input graphs\n\t3: approximate algorithm based on merging cliques created from input graphs";
 
             if (args.Length == 0 || args.Length != 3)
             {
