@@ -23,16 +23,36 @@ namespace MaximumCommonConnectedInducedSubgraph
             biggestMCCIS_FoundMapping = new List<(int, int)>();
         }
 
-        public int PerformMcGregorForVerticesAndEdges()
+        public (int[], int[]) GetMaximalCommonSubgraphMapping(string g1Path, string g2Path, int mode = 0)
+        {
+            Graph g1 = new Graph();
+            Graph g2 = new Graph();
+            g1.FillEdgesFromCsv(g1Path);
+            g2.FillEdgesFromCsv(g2Path);
+            (int[], int[]) response;
+            if (mode == 0)
+            {
+                PerformMcGregorForVertices(out response);
+            }
+            else
+            {
+                PerformMcGregorForVerticesAndEdges(out response);
+            }
+            return response;
+        }
+
+        public int PerformMcGregorForVerticesAndEdges(out (int[],int[]) vertexMapping)
         {
             int totalSum = 0;
             FindMCCIS_ForVerticesAndEdges(state, ref biggestMCCIS_FoundMapping, ref totalSum);
+            vertexMapping = (biggestMCCIS_FoundMapping.Select(v => v.Item1).ToArray(), biggestMCCIS_FoundMapping.Select(v => v.Item2).ToArray());
             return totalSum;
         }
 
-        public int PerformMcGregorForVertices()
+        public int PerformMcGregorForVertices(out (int[], int[]) vertexMapping)
         {
             FindMCCIS_ForVertices(state, ref biggestMCCIS_FoundMapping);
+            vertexMapping = (biggestMCCIS_FoundMapping.Select(v => v.Item1).ToArray(), biggestMCCIS_FoundMapping.Select(v => v.Item2).ToArray());
             return biggestMCCIS_FoundMapping.Count;
         }
 
@@ -109,19 +129,45 @@ namespace MaximumCommonConnectedInducedSubgraph
         {
             var g1 = state.G1.GraphData;
             var g2 = state.G2.GraphData;
-            bool n1Feasible = false, n2Feasible = false;
+            var verificationFlag = true;
+            var counter = 0;
 
-            foreach (var pairMapped in state.Mapping)
+            if (g1.GetLength(0) != state.G1Vertices.Count) // if first vertice from both graphs is being mapped - skip and return true
             {
-                if (state.G1.GraphData[n.Item1, pairMapped.Item1] != 0)
-                    n1Feasible = true;
-                if (state.G2.GraphData[n.Item2, pairMapped.Item2] != 0)
-                    n2Feasible = true;
-                if (n1Feasible && n2Feasible)
-                    break;
+                foreach (var pairMapped in state.Mapping)
+                {
+                    if (state.G1.GraphData[n.Item1, pairMapped.Item1] != state.G2.GraphData[n.Item2, pairMapped.Item2])
+                    {
+                        verificationFlag = false;
+                        break;
+                    }
+                    else
+                    {
+                        counter += state.G1.GraphData[n.Item1, pairMapped.Item1];
+                    }
+
+                }
+                if (verificationFlag && counter == 0)
+                    verificationFlag = false;
             }
 
-            return state.G1Vertices.Count == g1.GetLength(0) || n1Feasible && n2Feasible;
+            return verificationFlag;
+
+            //var g1 = state.G1.GraphData;
+            //var g2 = state.G2.GraphData;
+            //bool n1Feasible = false, n2Feasible = false;
+
+            //foreach (var pairMapped in state.Mapping)
+            //{
+            //    if (state.G1.GraphData[n.Item1, pairMapped.Item1] != 0)
+            //        n1Feasible = true;
+            //    if (state.G2.GraphData[n.Item2, pairMapped.Item2] != 0)
+            //        n2Feasible = true;
+            //    if (n1Feasible && n2Feasible)
+            //        break;
+            //}
+
+            //return state.G1Vertices.Count == g1.GetLength(0) || n1Feasible && n2Feasible;
 
             //int n1ConnectionsToMCCIS = 0;
             //int n2ConnectionsToMCCIS = 0;
@@ -166,6 +212,7 @@ namespace MaximumCommonConnectedInducedSubgraph
 
         bool PruningCondition(State state)
         {
+
             return false; // TO DO: implement condition
         }
 
