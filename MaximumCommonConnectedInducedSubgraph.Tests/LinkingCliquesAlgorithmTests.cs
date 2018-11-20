@@ -132,27 +132,32 @@ namespace MaximumCommonConnectedInducedSubgraph.Tests
             #endregion
         }
 
-        //[Fact] 
-        //public void TwoDifferentGraphsAsConnectedCliquesWithoutCommonCliques()
-        //{
-        //    #region Give
-        //    var gPath = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\b2.csv";
+        [Fact] 
+        public void TwoDifferentGraphsAsConnectedCliquesWithoutCommonCliques()
+        {
+            #region Give
+            var g1Name = "b4_k3_with_k1";
+            var g1ExpectedResult = new int[] { 4, 5, 6, 7, 8 };
+            var g2Name = "b5_k4_with_k2";
+            var g2ExpectedResult = new int[] { 2, 5, 4, 3, 1 };
 
-        //    var alg = new LinkingCliquesAlgorithm();
-        //    var g = new Graph();
-        //    g.FillEdgesFromCsv(gPath);
-        //    #endregion
+            var g1Path = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\" + g1Name + ".csv";
+            var g2Path = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\" + g2Name + ".csv";
 
-        //    #region When
-        //    int[] x1;
-        //    int[] x2;
-        //    (x1, x2) = alg.GetMaximalCommonSubgraphMapping(gPath, gPath);
-        //    #endregion
+            var alg = new LinkingCliquesAlgorithm();
+            #endregion
 
-        //    #region Then
+            #region When
+            int[] x1;
+            int[] x2;
+            (x1, x2) = alg.GetMaximalCommonSubgraphMapping(g1Path, g2Path);
+            #endregion
 
-        //    #endregion
-        //}
+            #region Then
+            Assert.Empty(x1);
+            Assert.Empty(x2);
+            #endregion
+        }
 
 
 
