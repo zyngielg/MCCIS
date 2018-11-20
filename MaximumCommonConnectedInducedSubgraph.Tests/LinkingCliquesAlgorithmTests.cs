@@ -132,14 +132,12 @@ namespace MaximumCommonConnectedInducedSubgraph.Tests
             #endregion
         }
 
-        [Fact] 
+        [Fact]
         public void TwoDifferentGraphsAsConnectedCliquesWithoutCommonCliques()
         {
             #region Give
             var g1Name = "b4_k3_with_k1";
-            var g1ExpectedResult = new int[] { 4, 5, 6, 7, 8 };
             var g2Name = "b5_k4_with_k2";
-            var g2ExpectedResult = new int[] { 2, 5, 4, 3, 1 };
 
             var g1Path = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\" + g1Name + ".csv";
             var g2Path = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\" + g2Name + ".csv";
@@ -159,6 +157,70 @@ namespace MaximumCommonConnectedInducedSubgraph.Tests
             #endregion
         }
 
+        [Fact]
+        public void SameCliquesConnectedWithBridge()
+        {
+            #region Give
+            var gName = "b6_k3_bridge_k3";
+            var gExpectedResult = new int[] { 1, 0, 2, 3, 4, 5, 6 };
+
+            var gPath = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\" + gName + ".csv";
+
+            var alg = new LinkingCliquesAlgorithm();
+            #endregion
+
+            #region When
+            int[] x1;
+            int[] x2;
+            (x1, x2) = alg.GetMaximalCommonSubgraphMapping(gPath, gPath);
+            #endregion
+
+            #region Then
+            Assert.Equal(gExpectedResult.Length, x1.Length);
+            Assert.Equal(gExpectedResult.Length, x2.Length);
+
+            for(int i=0; i< gExpectedResult.Length; i++)
+            {
+                Assert.Equal(gExpectedResult[i], x1[i]);
+                Assert.Equal(gExpectedResult[i], x2[i]);
+            }
+
+            #endregion
+        }
+
+        [Fact]
+        public void k3_bridge_k3_and_k3_bridge_k4()
+        {
+            #region Give
+            var g1Name = "b6_k3_bridge_k3";
+            var g2Name = "b7_k3_bridge_k4";
+
+            var gExpectedResult = new int[] { 1, 0, 2, 3 };
+
+            var g1Path = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\" + g1Name + ".csv";
+            var g2Path = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\" + g2Name + ".csv";
+
+            var alg = new LinkingCliquesAlgorithm();
+            #endregion
+
+            #region When
+            int[] x1;
+            int[] x2;
+            (x1, x2) = alg.GetMaximalCommonSubgraphMapping(g1Path, g2Path);
+            #endregion
+
+            #region Then
+            Assert.Equal(gExpectedResult.Length, x1.Length);
+            Assert.Equal(gExpectedResult.Length, x2.Length);
+
+            for (int i = 0; i < gExpectedResult.Length; i++)
+            {
+                Assert.Equal(gExpectedResult[i], x1[i]);
+                Assert.Equal(gExpectedResult[i], x2[i]);
+            }
+
+            #endregion
+        }
 
 
     }
