@@ -7,6 +7,7 @@ namespace MaximumCommonConnectedInducedSubgraph
     {
         static void Main(string[] args)
         {
+<<<<<<< HEAD
             string parametersUsage = "  <alg_opt>:\n\t0: accurate McGregor algorithm: vertices criterion\n\t0: accurate McGregor algorithm: sum of vertices and edges criterion\n\t2: approximate algorithm based on finding maximal clique in a modular product of two input graphs\n\t3: approximate algorithm based on merging cliques created from input graphs";
 
             if (args.Length == 0 || args.Length != 3)
@@ -95,6 +96,26 @@ namespace MaximumCommonConnectedInducedSubgraph
             {
                 Console.Write(" " + g2Mapping[i]);
             }          
+=======
+            var file1 = "Graphs\\g5_1.csv";
+            var file2 = "Graphs\\g5_2.csv";
+
+            (int[], int[]) mappingV;
+            (int[], int[]) mappingVE;
+
+            var vAlgo = new McGregorAlgorithm(true);
+            var veAlgo = new McGregorAlgorithm(false);
+
+            mappingV = vAlgo.GetMaximalCommonSubgraphMapping(file1, file2);
+            Console.WriteLine("Vertices in MCCIS : " + mappingV.ToString());
+
+            mappingVE = veAlgo.GetMaximalCommonSubgraphMapping(file1, file2);
+            Console.WriteLine("Vertices+edges in MCCIS: " + mappingVE.ToString());
+
+            Console.WriteLine("Press any key ...");
+            Console.ReadKey();
+
+>>>>>>> accurate-algorithm
         }
 
     }

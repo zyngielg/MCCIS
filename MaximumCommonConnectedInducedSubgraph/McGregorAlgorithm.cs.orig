@@ -5,7 +5,21 @@ using System.Text;
 
 namespace MaximumCommonConnectedInducedSubgraph
 {
+<<<<<<< HEAD
     public class McGregorAlgorithm : IAlgorithm
+    {
+        private bool _onlyVertices;
+
+        public McGregorAlgorithm(bool onlyVertices)
+        {
+            _onlyVertices = onlyVertices;
+        }
+        public (int[], int[]) GetMaximalCommonSubgraphMapping(string g1Path, string g2Path)
+        {
+            throw new NotImplementedException();
+        }
+=======
+    public class McGregorAlgorithm
     {
         private bool onlyVertices;
         private State state;
@@ -259,5 +273,6 @@ namespace MaximumCommonConnectedInducedSubgraph
             G2Vertices = s.G2Vertices.ConvertAll(a => a);
         }
 
+>>>>>>> accurate-algorithm
     }
 }

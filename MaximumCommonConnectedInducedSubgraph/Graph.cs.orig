@@ -7,18 +7,43 @@ namespace MaximumCommonConnectedInducedSubgraph
 {
     public class Graph
     {
+<<<<<<< HEAD
         public int[,] GraphData;
         public int Size;
 
         public Dictionary<int, int> verticesDegrees;
+=======
+        private int[,] _graph;
+        private int _size;
+        private int _initialSize;
+
+        public Dictionary<int, int> verticesDegrees;
+        public Dictionary<int, List<int>> verticesEdges;
+
+        public int Size
+        {
+            get { return _size; }
+            set { _size = value; }
+        }
+
+        public int[,] GraphData
+        {
+            get { return _graph; }
+        }
+>>>>>>> accurate-algorithm
 
         public Graph()
         {
             verticesDegrees = new Dictionary<int, int>();
+<<<<<<< HEAD
+=======
+            verticesEdges = new Dictionary<int, List<int>>();
+>>>>>>> accurate-algorithm
         }
 
         public Graph(int[,] graph)
         {
+<<<<<<< HEAD
             GraphData = graph;
             Size = graph.GetLength(0);
             verticesDegrees = new Dictionary<int, int>();
@@ -32,10 +57,27 @@ namespace MaximumCommonConnectedInducedSubgraph
             var g = new int[Size, Size];
 
             for (int i = 0; i < Size; i++)
+=======
+            _graph = graph;
+            _size = graph.GetLength(0);
+            verticesDegrees = new Dictionary<int, int>();
+            verticesEdges = new Dictionary<int, List<int>>();
+            AssignVerticesDegrees();
+        }
+
+        public void FillEdgesFromCsv(string csvPath)
+        {
+            var file = File.ReadAllLines(csvPath);
+            _size = file.Length;
+            var g = new int[_size, _size];
+
+            for (int i = 0; i < _size; i++)
+>>>>>>> accurate-algorithm
             {
                 var currentLine = file[i].Split(',');
                 for (int j = 0; j < currentLine.Length; j++)
                 {
+<<<<<<< HEAD
                     if(currentLine[j] != "")
                         g[i, j] = Convert.ToInt32(currentLine[j]);
                 }
@@ -53,6 +95,12 @@ namespace MaximumCommonConnectedInducedSubgraph
                 }
             }
 
+=======
+                    g[i, j] = currentLine[j].Equals("1") ? 1 : 0;
+                }
+            }
+            _graph = g;
+>>>>>>> accurate-algorithm
 
             AssignVerticesDegrees();
         }
@@ -61,6 +109,7 @@ namespace MaximumCommonConnectedInducedSubgraph
         {
             var potentialClique = new List<int>();
 
+<<<<<<< HEAD
             for (int i = 0; i < GraphData.GetLength(0); i++)
             {
                 int sum = 0;
@@ -68,6 +117,15 @@ namespace MaximumCommonConnectedInducedSubgraph
                 for (int j = 0; j < GraphData.GetLength(1); j++)
                 {
                     sum += GraphData[i, j];
+=======
+            for (int i = 0; i < _graph.GetLength(0); i++)
+            {
+                int sum = 0;
+
+                for (int j = 0; j < _graph.GetLength(1); j++)
+                {
+                    sum += _graph[i, j];
+>>>>>>> accurate-algorithm
                 }
 
                 if (sum > 0)
@@ -78,7 +136,11 @@ namespace MaximumCommonConnectedInducedSubgraph
 
             foreach (var vertex in potentialClique)
             {
+<<<<<<< HEAD
                 if (verticesDegrees[vertex] != Size - 1)
+=======
+                if (verticesDegrees[vertex] != _size - 1)
+>>>>>>> accurate-algorithm
                 {
                     return false;
                 }
@@ -91,6 +153,7 @@ namespace MaximumCommonConnectedInducedSubgraph
         {
             var clique = new List<int>();
 
+<<<<<<< HEAD
             for (int i = 0; i < GraphData.GetLength(0); i++)
             {
                 int sum = 0;
@@ -101,6 +164,18 @@ namespace MaximumCommonConnectedInducedSubgraph
                 }
 
                 if (sum == Size - 1)
+=======
+            for (int i = 0; i < _graph.GetLength(0); i++)
+            {
+                int sum = 0;
+
+                for (int j = 0; j < _graph.GetLength(1); j++)
+                {
+                    sum += _graph[i, j];
+                }
+
+                if (sum == _size - 1)
+>>>>>>> accurate-algorithm
                 {
                     clique.Add(i);
                 }
@@ -111,20 +186,31 @@ namespace MaximumCommonConnectedInducedSubgraph
 
         public void PrintGraph()
         {
+<<<<<<< HEAD
             for (int i = 0; i < GraphData.GetLength(0); i++)
             {
                 for (int j = 0; j < GraphData.GetLength(0); j++)
+=======
+            for (int i = 0; i < _graph.GetLength(0); i++)
+            {
+                for (int j = 0; j < _graph.GetLength(0); j++)
+>>>>>>> accurate-algorithm
                 {
                     if (j > 0)
                     {
                         Console.Write(",");
                     }
+<<<<<<< HEAD
                     Console.Write(GraphData[i, j]);
+=======
+                    Console.Write(_graph[i, j]);
+>>>>>>> accurate-algorithm
                 }
                 Console.WriteLine();
             }
         }
 
+<<<<<<< HEAD
         public void AssignVerticesDegrees()
         {
             for (int i = 0; i < Size; i++)
@@ -135,11 +221,26 @@ namespace MaximumCommonConnectedInducedSubgraph
                 {
                     if (GraphData[i, j] > 0)
                     {
+=======
+        private void AssignVerticesDegrees()
+        {
+            for (int i = 0; i < _size; i++)
+            {
+                int sum = 0;
+                var edges = new List<int>();
+
+                for (int j = 0; j < _size; j++)
+                {
+                    if (_graph[i, j] == 1)
+                    {
+                        edges.Add(j);
+>>>>>>> accurate-algorithm
                         sum++;
                     }
                 }
 
                 verticesDegrees.Add(i, sum);
+<<<<<<< HEAD
             }
         }
 
@@ -184,44 +285,10 @@ namespace MaximumCommonConnectedInducedSubgraph
             }
             return false;
         }
-            return clique;
-        }
-
-        public void PrintGraph()
-        {
-            for (int i = 0; i < _graph.GetLength(0); i++)
-            {
-                for (int j = 0; j < _graph.GetLength(0); j++)
-                {
-                    if (j > 0)
-                    {
-                        Console.Write(",");
-                    }
-                    Console.Write(_graph[i, j]);
-                }
-                Console.WriteLine();
-            }
-        }
-
-        private void AssignVerticesDegrees()
-        {
-            for (int i = 0; i < _size; i++)
-            {
-                int sum = 0;
-                var edges = new List<int>();
-
-                for (int j = 0; j < _size; j++)
-                {
-                    if (_graph[i, j] == 1)
-                    {
-                        edges.Add(j);
-                        sum++;
-                    }
-                }
-
-                verticesDegrees.Add(i, sum);
+=======
                 verticesEdges.Add(i, edges);
             }
         }
+>>>>>>> accurate-algorithm
     }
 }
