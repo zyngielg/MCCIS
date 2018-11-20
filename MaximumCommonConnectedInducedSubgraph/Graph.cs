@@ -184,44 +184,44 @@ namespace MaximumCommonConnectedInducedSubgraph
             }
             return false;
         }
-            return clique;
-        }
+        //    return clique;
+        //}
 
-        public void PrintGraph()
-        {
-            for (int i = 0; i < _graph.GetLength(0); i++)
-            {
-                for (int j = 0; j < _graph.GetLength(0); j++)
-                {
-                    if (j > 0)
-                    {
-                        Console.Write(",");
-                    }
-                    Console.Write(_graph[i, j]);
-                }
-                Console.WriteLine();
-            }
-        }
+        //public void PrintGraph()
+        //{
+        //    for (int i = 0; i < _graph.GetLength(0); i++)
+        //    {
+        //        for (int j = 0; j < _graph.GetLength(0); j++)
+        //        {
+        //            if (j > 0)
+        //            {
+        //                Console.Write(",");
+        //            }
+        //            Console.Write(_graph[i, j]);
+        //        }
+        //        Console.WriteLine();
+        //    }
+        //}
 
-        private void AssignVerticesDegrees()
-        {
-            for (int i = 0; i < _size; i++)
-            {
-                int sum = 0;
-                var edges = new List<int>();
+        //private void AssignVerticesDegrees()
+        //{
+        //    for (int i = 0; i < _size; i++)
+        //    {
+        //        int sum = 0;
+        //        var edges = new List<int>();
 
-                for (int j = 0; j < _size; j++)
-                {
-                    if (_graph[i, j] == 1)
-                    {
-                        edges.Add(j);
-                        sum++;
-                    }
-                }
+        //        for (int j = 0; j < _size; j++)
+        //        {
+        //            if (_graph[i, j] == 1)
+        //            {
+        //                edges.Add(j);
+        //                sum++;
+        //            }
+        //        }
 
-                verticesDegrees.Add(i, sum);
-                verticesEdges.Add(i, edges);
-            }
-        }
+        //        verticesDegrees.Add(i, sum);
+        //        verticesEdges.Add(i, edges);
+        //    }
+        //}
     }
 }
