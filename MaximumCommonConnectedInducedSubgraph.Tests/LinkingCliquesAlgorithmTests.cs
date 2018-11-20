@@ -222,6 +222,40 @@ namespace MaximumCommonConnectedInducedSubgraph.Tests
             #endregion
         }
 
+        [Fact]
+        public void A1A2()
+        {
+            #region Give
+            var g1Name = "a1";
+            var g2Name = "a2";
+
+            var gExpectedResult = new int[] { 0 };
+
+            var g1Path = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\" + g1Name + ".csv";
+            var g2Path = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\" + g2Name + ".csv";
+
+            var alg = new LinkingCliquesAlgorithm();
+            #endregion
+
+            #region When
+            int[] x1;
+            int[] x2;
+            (x1, x2) = alg.GetMaximalCommonSubgraphMapping(g1Path, g2Path);
+            #endregion
+
+            #region Then
+            Assert.Equal(gExpectedResult.Length, x1.Length);
+            Assert.Equal(gExpectedResult.Length, x2.Length);
+
+            for (int i = 0; i < gExpectedResult.Length; i++)
+            {
+                Assert.Equal(gExpectedResult[i], x1[i]);
+                Assert.Equal(gExpectedResult[i], x2[i]);
+            }
+
+            #endregion
+        }
+
 
     }
 }

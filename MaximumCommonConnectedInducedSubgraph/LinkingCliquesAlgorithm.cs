@@ -263,9 +263,14 @@ namespace MaximumCommonConnectedInducedSubgraph
             {
                 mgAlg = new ModularGraphMaxCliqueAlgorithm();
 
-                mgAlg.MaxCliquePolynomial(gCp);
+                mgAlg.MaxCliquePolynomial(gCp, true);
                 clique = new List<int>();
 
+                // issue when we dissolve the graph 
+                if(mgAlg._maxCP.Count == 0)
+                {
+                    break;
+                }
                 for (int i = 0; i < mgAlg._maxCP.Count; i++)
                 {
                     clique.Add(mgAlg._maxCP[i]);

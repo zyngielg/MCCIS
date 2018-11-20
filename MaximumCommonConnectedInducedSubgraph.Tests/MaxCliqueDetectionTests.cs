@@ -82,5 +82,31 @@ namespace MaximumCommonConnectedInducedSubgraph.Tests
             Assert.Equal(g1Mapping[0], g2Mapping[0]);
             #endregion
         }
+
+        [Fact]
+        public void MaxCliqueDetectionG1G3()
+        {
+            var expectedResult = new List<int> { 0, 2, 3 };
+            var expectedResult2 = new List<int> { 2, 1, 4 };
+
+            var gPath1 = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\a1.csv";
+            var gPath2 = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\a2.csv";
+         
+            var alg = new ModularGraphMaxCliqueAlgorithm();
+            int[] g1Mapping;
+            int[] g2Mapping;
+            (g1Mapping, g2Mapping) = alg.GetMaximalCommonSubgraphMapping(gPath1, gPath2);
+
+            #region Then
+            Assert.Equal(expectedResult.Count, g1Mapping.Length);
+            Assert.Equal(expectedResult2.Count, g2Mapping.Length);
+
+            for(int i=0; i< expectedResult.Count; i++)
+            {
+                Assert.Equal(expectedResult[i], g1Mapping[i]);
+                Assert.Equal(expectedResult2[i], g2Mapping[i]);
+            }
+            #endregion
+        }
     }
 }

@@ -98,9 +98,9 @@ namespace MaximumCommonConnectedInducedSubgraph
             _modularGraph.AssignVerticesDegrees();
         }
 
-        public void MaxCliquePolynomial(Graph g)
+        public void MaxCliquePolynomial(Graph g, bool linking = false)
         {
-            if (g.IsClique())
+            if (g.IsClique() || g.Size == 1)
             {
                 if (g.IsGraphConnected() || g.Size == 1)
                 {
@@ -119,14 +119,25 @@ namespace MaximumCommonConnectedInducedSubgraph
 
                 if (g.Size > 0)
                 {
-                    MaxCliquePolynomial(g);
-                }
-                else
-                {
-                    if (1 > _maxC)
+                    if(linking)
                     {
-                        _maxC = 1;
-                        _maxCP = new List<int> { alpha };
+                        int sum = 0;
+                        for(int i=0; i<g.GraphData.GetLength(0); i++)
+                        {
+                            for (int j = 0; j < g.GraphData.GetLength(1); j++)
+                            {
+                                if (g.GraphData[i, j] > 0)
+                                    sum++;
+                            }
+                        }
+                        if(sum > 0)
+                        {
+                            MaxCliquePolynomial(g);
+                        }
+                    }
+                    else
+                    {
+                        MaxCliquePolynomial(g);
                     }
                 }
             }
