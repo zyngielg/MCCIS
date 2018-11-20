@@ -34,8 +34,8 @@ namespace MaximumCommonConnectedInducedSubgraph
             }
             
             IAlgorithm alg;
-            var g1Path = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\" + args[1];
-            var g2Path = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\" + args[2];
+            var g1Path = Environment.CurrentDirectory + "\\Graphs\\" + args[1];
+            var g2Path = Environment.CurrentDirectory + "\\Graphs\\" + args[2];
 
             string title;
             string criterion;
