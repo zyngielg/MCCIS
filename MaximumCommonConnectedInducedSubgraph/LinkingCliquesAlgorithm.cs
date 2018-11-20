@@ -35,6 +35,35 @@ namespace MaximumCommonConnectedInducedSubgraph
             GetGraphCliques(new Graph((int[,])_g1.GraphData.Clone()), _g1Cliques);
             GetGraphCliques(new Graph((int[,])_g2.GraphData.Clone()), _g2Cliques);
 
+            // delete from g2 uniqe cliques compairng to g1
+            var toDeleteG2 = new List<int>();
+            for (int i = 0; i < _g2Cliques.Count; i++)
+            {
+                bool any = false;
+                for (int j = 0; j < _g1Cliques.Count; j++)
+                {
+                    if(_g2Cliques[i].Count == _g1Cliques[j].Count)
+                    {
+                        any = true;
+                        break;
+                    }
+                }
+                if(!any)
+                {
+                    toDeleteG2.Add(i);
+                }
+            }
+
+            for(int i= toDeleteG2.Count - 1; i>=0; i--)
+            {
+                _g2Cliques.Remove(_g2Cliques[toDeleteG2[i]]);
+            }
+
+            if(_g2Cliques.Count == 0)
+            {
+                return (new int[0], new int[0]);
+            }
+
             bool wasSwap = false;
 
             if (_g2Cliques[0].Count < _g1Cliques[0].Count)
@@ -65,45 +94,54 @@ namespace MaximumCommonConnectedInducedSubgraph
             }
             #endregion
 
+            var stos = new List<List<int>>();
 
-            while (_g1Cliques.Count > 0)
+            stos.Add(_g1Cliques[0]);
+
+            while (stos.Count > 0)
             {
-                bool wasMatch = false;
-                if (_g2Cliques[0].Count > _g1Cliques[0].Count)
-                {
-                    var toDelete = new List<int>();
-                    var verticesToDelete = new List<int>();
+                var cliqueG1 = stos[0];
 
-                    for (int a = 0; a < _g2Cliques.Count; a++)
-                    {
-                        if (_g2Cliques[a].Count > _g1Cliques[0].Count)
-                        {
-                            toDelete.Add(a);
-                            verticesToDelete.AddRange(_g2Cliques[a]);
-                        }
-                    }
-                    for (int a = 0; a < toDelete.Count; a++)
-                    {
-                        _g2Cliques.RemoveAt(toDelete[a]);
-                    }
+                bool wasMatch = false;
+                var s = 0;
+                while (_g2Cliques[s].Count > cliqueG1.Count)
+                {
+                    s++;
+                    //var toDelete = new List<int>();
+                    //var verticesToDelete = new List<int>();
+
+                    //for (int a = 0; a < _g2Cliques.Count; a++)
+                    //{
+                    //    if (_g2Cliques[a].Count > _g1Cliques[0].Count)
+                    //    {
+                    //        toDelete.Add(a);
+                    //        verticesToDelete.AddRange(_g2Cliques[a]);
+                    //    }
+                    //}
+                    //for (int a = 0; a < toDelete.Count; a++)
+                    //{
+                    //    _g2Cliques.RemoveAt(toDelete[a]);
+                    //}
                     // delete from g2 table connections with those
                     // TODO
                 }
-                if(_g2Cliques.Count == 0)
+                var cliqueG2 = _g2Cliques[s];
+
+                if (_g2Cliques.Count == 0)
                 {
                     _g1Cliques.RemoveAt(0);
                     continue;
                 }
-                if (_g1Cliques[0].Count > _g2Cliques[0].Count)
+                if (cliqueG1.Count > _g2Cliques[0].Count)
                 {
                     _g1Cliques.RemoveAt(0);
+                    stos.Remove(cliqueG1);
+                    stos.Add(_g1Cliques[0]);
                     continue;
                 }
 
                 var localVertexMapping = new List<List<int>>(); // g1 v, g2 v, common max degree
 
-                var cliqueG1 = _g1Cliques[0];
-                var cliqueG2 = _g2Cliques[0];
 
                 // b) mapping vertices
                 for (int a = 0; a < cliqueG1.Count; a++)
@@ -136,13 +174,17 @@ namespace MaximumCommonConnectedInducedSubgraph
                         {
                             if (_g1.GraphData[cliqueG1[a], cliqueG1toMatch[b]] > 0)
                             {
-                                for (int c = 0; c < cliqueG2.Count; c++)
+                                int e = 0;
+
+                                for (int c = 0; c < cliqueG2.Count; c++) // po wierzcholkach g2Max
                                 {
-                                    int ii = 1;
-                                    var cliqueG2toMatch = _g2Cliques[ii];
-                                    if (cliqueG2toMatch.Count != cliqueG1toMatch.Count)
+                                    if (e >= _g2Cliques.Count) break;
+                                    var cliqueG2toMatch = _g2Cliques[e];
+                                    if (cliqueG2toMatch.Equals(cliqueG2) || cliqueG2toMatch.Count != cliqueG1toMatch.Count)
                                     {
-                                        ii++;
+                                        e++;
+                                        c--;
+                                        continue;
                                     }
                                     else
                                     {
@@ -150,13 +192,18 @@ namespace MaximumCommonConnectedInducedSubgraph
                                         {
                                             if (_g2.GraphData[cliqueG2[c], cliqueG2toMatch[d]] > 0)
                                             {
-                                                verticesMappings.Add(new KeyValuePair<int, int>(cliqueG1toMatch[b], cliqueG2toMatch[d]));
+                                                for(int p = 0; p < cliqueG2toMatch.Count; p++)
+                                                {
+                                                    verticesMappings.Add(new KeyValuePair<int, int>(cliqueG1toMatch[p], cliqueG2toMatch[p]));
+                                                    
+                                                }
+
                                                 _g1.GraphData[cliqueG1[a], cliqueG1toMatch[b]] = 0;
                                                 _g1.GraphData[cliqueG1toMatch[b], cliqueG1[a]] = 0;
 
                                                 _g2.GraphData[cliqueG2[c], cliqueG2toMatch[d]] = 0;
                                                 _g2.GraphData[cliqueG2toMatch[d], cliqueG2[c]] = 0;
-
+                                                stos.Add(cliqueG1toMatch);
                                                 vertexMaxDegree--;
                                                 goToWhile = true;
                                                 wasMatch = true;
@@ -164,6 +211,7 @@ namespace MaximumCommonConnectedInducedSubgraph
                                             }
                                         }
                                     }
+                                    e++;
                                     if (goToWhile) break;
 
                                 }
@@ -175,8 +223,8 @@ namespace MaximumCommonConnectedInducedSubgraph
                     }
                 }
 
-                _g1Cliques.RemoveAt(0);
-
+                stos.RemoveAt(0);
+                _g2Cliques.RemoveAt(0);
                 if (!wasMatch)
                 {
                     break;
@@ -186,6 +234,8 @@ namespace MaximumCommonConnectedInducedSubgraph
 
             var x1 = new List<int>();
             var x2 = new List<int>();
+
+            verticesMappings = verticesMappings.Distinct().ToList();
 
             for (int i = 0; i < verticesMappings.Count; i++)
             {
