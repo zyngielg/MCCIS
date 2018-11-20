@@ -27,8 +27,178 @@ namespace MaximumCommonConnectedInducedSubgraph
             cliquesMapping = new List<KeyValuePair<int, int>>();
             verticesMappings = new List<KeyValuePair<int, int>>();
         }
-
         public (int[], int[]) GetMaximalCommonSubgraphMapping(string g1Path, string g2Path)
+        {
+            _g1.FillEdgesFromCsv(g1Path);
+            _g2.FillEdgesFromCsv(g2Path);
+
+            GetGraphCliques(new Graph((int[,])_g1.GraphData.Clone()), _g1Cliques);
+            GetGraphCliques(new Graph((int[,])_g2.GraphData.Clone()), _g2Cliques);
+
+            bool wasSwap = false;
+
+            if (_g2Cliques[0].Count < _g1Cliques[0].Count)
+            {
+                var x = new List<List<int>>(_g2Cliques);
+                _g2Cliques = new List<List<int>>(_g1Cliques);
+                _g1Cliques = new List<List<int>>(x);
+
+                var y = new Graph((int[,])_g1.GraphData.Clone());
+                _g1 = new Graph((int[,])_g2.GraphData.Clone());
+                _g2 = new Graph(y.GraphData);
+
+                wasSwap = true;
+
+            }
+
+            bool[] g1UsedCliques = new bool[_g1Cliques.Count];
+            bool[] g2UsedCliques = new bool[_g2Cliques.Count];
+
+            #region Sorting vertices in cliques by degree descending
+            for (int i = 0; i < _g1Cliques.Count; i++)
+            {
+                _g1Cliques[i].Sort((a, b) => _g1.verticesDegrees[a].CompareTo(_g1.verticesDegrees[b]) * -1);
+            }
+            for (int i = 0; i < _g2Cliques.Count; i++)
+            {
+                _g2Cliques[i].Sort((a, b) => _g2.verticesDegrees[a].CompareTo(_g2.verticesDegrees[b]) * -1);
+            }
+            #endregion
+
+
+            while (_g1Cliques.Count > 0)
+            {
+                bool wasMatch = false;
+                if (_g2Cliques[0].Count > _g1Cliques[0].Count)
+                {
+                    var toDelete = new List<int>();
+                    var verticesToDelete = new List<int>();
+
+                    for (int a = 0; a < _g2Cliques.Count; a++)
+                    {
+                        if (_g2Cliques[a].Count > _g1Cliques[0].Count)
+                        {
+                            toDelete.Add(a);
+                            verticesToDelete.AddRange(_g2Cliques[a]);
+                        }
+                    }
+                    for (int a = 0; a < toDelete.Count; a++)
+                    {
+                        _g2Cliques.RemoveAt(toDelete[a]);
+                    }
+                    // delete from g2 table connections with those
+                    // TODO
+                }
+                if(_g2Cliques.Count == 0)
+                {
+                    _g1Cliques.RemoveAt(0);
+                    continue;
+                }
+                if (_g1Cliques[0].Count > _g2Cliques[0].Count)
+                {
+                    _g1Cliques.RemoveAt(0);
+                    continue;
+                }
+
+                var localVertexMapping = new List<List<int>>(); // g1 v, g2 v, common max degree
+
+                var cliqueG1 = _g1Cliques[0];
+                var cliqueG2 = _g2Cliques[0];
+
+                // b) mapping vertices
+                for (int a = 0; a < cliqueG1.Count; a++)
+                {
+                    var minMaxDegree = _g1.verticesDegrees[cliqueG1[a]] < _g2.verticesDegrees[cliqueG2[a]] ?
+                        _g1.verticesDegrees[cliqueG1[a]] : _g2.verticesDegrees[cliqueG2[a]];
+
+                    minMaxDegree -= cliqueG1.Count;
+                    minMaxDegree += 1;
+
+                    if (!verticesMappings.Contains(new KeyValuePair<int, int>(cliqueG1[a], cliqueG2[a])))
+                    {
+                        verticesMappings.Add(new KeyValuePair<int, int>(cliqueG1[a], cliqueG2[a]));
+                    }
+
+                    localVertexMapping.Add(new List<int> { cliqueG1[a], cliqueG2[a], minMaxDegree });
+                }
+
+                for (int a = 0; a < cliqueG1.Count; a++) // for each index in maximal clique
+                {
+                    var vertexMaxDegree = localVertexMapping[a][2];
+                    int i = 1;
+                    while (vertexMaxDegree > 0)
+                    {
+                        if (i >= _g1Cliques.Count) break;
+                        var cliqueG1toMatch = _g1Cliques[i];
+                        var goToWhile = false;
+
+                        for (int b = 0; b < cliqueG1toMatch.Count; b++)
+                        {
+                            if (_g1.GraphData[cliqueG1[a], cliqueG1toMatch[b]] > 0)
+                            {
+                                for (int c = 0; c < cliqueG2.Count; c++)
+                                {
+                                    int ii = 1;
+                                    var cliqueG2toMatch = _g2Cliques[ii];
+                                    if (cliqueG2toMatch.Count != cliqueG1toMatch.Count)
+                                    {
+                                        ii++;
+                                    }
+                                    else
+                                    {
+                                        for (int d = 0; d < cliqueG2toMatch.Count; d++)
+                                        {
+                                            if (_g2.GraphData[cliqueG2[c], cliqueG2toMatch[d]] > 0)
+                                            {
+                                                verticesMappings.Add(new KeyValuePair<int, int>(cliqueG1toMatch[b], cliqueG2toMatch[d]));
+                                                _g1.GraphData[cliqueG1[a], cliqueG1toMatch[b]] = 0;
+                                                _g1.GraphData[cliqueG1toMatch[b], cliqueG1[a]] = 0;
+
+                                                _g2.GraphData[cliqueG2[c], cliqueG2toMatch[d]] = 0;
+                                                _g2.GraphData[cliqueG2toMatch[d], cliqueG2[c]] = 0;
+
+                                                vertexMaxDegree--;
+                                                goToWhile = true;
+                                                wasMatch = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (goToWhile) break;
+
+                                }
+                            }
+                            if (goToWhile) break;
+                        }
+
+                        i++;
+                    }
+                }
+
+                _g1Cliques.RemoveAt(0);
+
+                if (!wasMatch)
+                {
+                    break;
+                }
+            }
+
+
+            var x1 = new List<int>();
+            var x2 = new List<int>();
+
+            for (int i = 0; i < verticesMappings.Count; i++)
+            {
+                x1.Add(verticesMappings[i].Key);
+                x2.Add(verticesMappings[i].Value);
+            }
+
+
+            return wasSwap ? (x2.ToArray(), x1.ToArray()) : (x1.ToArray(), x2.ToArray());
+        }
+
+
+        public (int[], int[]) GetMaximalCommonSubgraphMapping2(string g1Path, string g2Path)
         {
             _g1.FillEdgesFromCsv(g1Path);
             _g2.FillEdgesFromCsv(g2Path);
@@ -123,55 +293,86 @@ namespace MaximumCommonConnectedInducedSubgraph
                     {
                         var vertexMaxDegree = localVertexMapping[j][2];
 
-                        for (int k = 0; k < vertexMaxDegree; k++)
+                        for (int k = 0; k < vertexMaxDegree; k++) // for each degree
                         {
                             //g1
+                            List<int> adjacentToVfromG1 = new List<int>();
+                            for (int x = 0; x < _g1.GraphData.GetLength(0); x++)
+                            {
+                                if (_g1.GraphData[localVertexMapping[j][0], x] > 0)
+                                {
+                                    adjacentToVfromG1.Add(x);
+                                }
+                            }
+
+                            //g2
+                            List<int> adjacentToVfromG2 = new List<int>();
+                            for (int x = 0; x < _g2.GraphData.GetLength(0); x++)
+                            {
+                                if (_g2.GraphData[localVertexMapping[j][1], x] > 0)
+                                {
+                                    adjacentToVfromG2.Add(x);
+                                }
+                            }
+
                             for (int l = i + 1; l < _g1Cliques.Count; l++)
                             {
                                 var smallG1 = _g1Cliques[l];
-                                if (AnyFreeDegreesInAnyVertex(smallG1, _g1))
-                                {
-                                    foreach (var sg1vertex in smallG1)
-                                    {
-                                        if (_g1.GraphData[localVertexMapping[j][0], sg1vertex] > 0)
-                                        {
-                                            // g2                                            
-                                            for (int m = currentG2clique + 1; m < cliqueMaxG2.Count; m++)
-                                            {
-                                                var smallG2 = _g2Cliques[m];
-                                                if (AnyFreeDegreesInAnyVertex(smallG2, _g2))
-                                                {
-                                                    foreach (var sg2vertex in smallG2)
-                                                    {
-                                                        if (_g2.GraphData[localVertexMapping[j][1], sg2vertex] > 0 && smallG1.Count == smallG2.Count)
-                                                        {
-                                                            verticesMappings.Add(new KeyValuePair<int, int>(sg1vertex, sg2vertex));
-                                                            _g1.verticesDegrees[sg1vertex]--;
-                                                            _g2.verticesDegrees[sg2vertex]--;
-                                                            wasConnection = true;
-                                                            break;
-                                                        }
+                                var toDeleteG1 = new List<int>();
 
-                                                    }
-                                                    //if(wasConnection) break;
-                                                }
-                                                else
-                                                {
-                                                    g2UsedCliques[m] = true;
-                                                }
-                                            }
-                                        }
-                                        //if(wasConnection) break;
+                                foreach (var el in adjacentToVfromG1)
+                                {
+                                    if (!smallG1.Contains(el))
+                                    {
+                                        toDeleteG1.Add(el);
                                     }
                                 }
-                                else
+                                foreach (var el in toDeleteG1)
                                 {
-                                    g1UsedCliques[l] = true;
+                                    adjacentToVfromG1.Remove(el);
                                 }
+
+                                if (adjacentToVfromG1.Count == 0) continue;
+
+                                // g2                                            
+                                for (int m = currentG2clique + 1; m < cliqueMaxG2.Count; m++)
+                                {
+                                    var smallG2 = _g2Cliques[m];
+
+                                    var toDeleteG2 = new List<int>();
+
+                                    foreach (var el in adjacentToVfromG2)
+                                    {
+                                        if (!smallG2.Contains(el))
+                                        {
+                                            toDeleteG2.Add(el);
+                                        }
+                                    }
+                                    foreach (var el in toDeleteG2)
+                                    {
+                                        adjacentToVfromG2.Remove(el);
+                                    }
+
+                                    if (adjacentToVfromG2.Count == 0) continue;
+
+                                    var shorter = adjacentToVfromG1.Count > adjacentToVfromG2.Count ? adjacentToVfromG2.Count : adjacentToVfromG1.Count;
+
+                                    for (int xx = 0; xx < shorter; xx++)
+                                    {
+                                        verticesMappings.Add(new KeyValuePair<int, int>(adjacentToVfromG1[xx], adjacentToVfromG2[xx]));
+                                    }
+                                }
+                                //if(wasConnection) break;
+
+                                //}
+                                //else
+                                //{
+                                //    g1UsedCliques[l] = true;
+                                //}
                             }
                         }
 
-                        if(j == cliqueMaxG1.Count - 1)
+                        if (j == cliqueMaxG1.Count - 1)
                         {
                             g1UsedCliques[i] = true;
                             g2UsedCliques[currentG2clique] = true;
