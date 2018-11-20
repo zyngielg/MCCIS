@@ -28,7 +28,7 @@ namespace MaximumCommonConnectedInducedSubgraph.Tests
             #region When
             var cliquesList = new List<List<int>>();
             alg.GetGraphCliques(g, cliquesList);
-            for(int i=0; i< cliquesList.Count; i++)
+            for (int i = 0; i < cliquesList.Count; i++)
             {
                 cliquesList[i].Sort();
             }
@@ -36,9 +36,9 @@ namespace MaximumCommonConnectedInducedSubgraph.Tests
 
             #region Then
             Assert.Equal(expectedResult.Count, cliquesList.Count);
-            for(int i=0; i< expectedResult.Count; i++)
+            for (int i = 0; i < expectedResult.Count; i++)
             {
-                for(int j=0; j<expectedResult[i].Count; j++)
+                for (int j = 0; j < expectedResult[i].Count; j++)
                 {
                     Assert.Equal(expectedResult[i][j], cliquesList[i][j]);
                 }
@@ -47,7 +47,7 @@ namespace MaximumCommonConnectedInducedSubgraph.Tests
         }
 
         [Theory]
-        [InlineData("b2")]
+        [InlineData("b2_unfortunate_numerating")]
         [InlineData("b1")]
         public void TwoSameGraphsAsConnectedCliques(string name)
         {
@@ -71,11 +71,13 @@ namespace MaximumCommonConnectedInducedSubgraph.Tests
         }
 
         [Fact]
-        public void TwoDifferentGraphsAsConnectedCliques()
+        public void TwoDifferentGraphsAsConnectedCliquesUnfortunateVertices()
         {
             #region Give
             var g1Name = "b1";
-            var g2Name = "b2";
+            var g1ExpectedResult = new int[] { 4, 5, 6 };
+            var g2Name = "b2_unfortunate_numerating";
+            var g2ExpectedResult = new int[] { 2, 5, 4 };
 
             var g1Path = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\" + g1Name + ".csv";
             var g2Path = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\" + g2Name + ".csv";
@@ -93,10 +95,43 @@ namespace MaximumCommonConnectedInducedSubgraph.Tests
             Assert.Equal(x1.Length, x2.Length);
             for (int i = 0; i < x1.Length; i++)
             {
-                Assert.Equal(x1[i], x2[i]);
+                Assert.Equal(g1ExpectedResult[i], x1[i]);
+                Assert.Equal(g2ExpectedResult[i], x2[i]);
             }
             #endregion
         }
+
+        [Fact]
+        public void TwoDifferentGraphsAsConnectedCliquesFortunateVertices()
+        {
+            #region Give
+            var g1Name = "b1";
+            var g1ExpectedResult = new int[] { 4, 5, 6, 7, 8 };
+            var g2Name = "b3_fortunate_numerating";
+            var g2ExpectedResult = new int[] { 2, 5, 4, 3, 1 };
+
+            var g1Path = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\" + g1Name + ".csv";
+            var g2Path = Environment.CurrentDirectory + "\\..\\..\\..\\Graphs\\" + g2Name + ".csv";
+
+            var alg = new LinkingCliquesAlgorithm();
+            #endregion
+
+            #region When
+            int[] x1;
+            int[] x2;
+            (x1, x2) = alg.GetMaximalCommonSubgraphMapping(g1Path, g2Path);
+            #endregion
+
+            #region Then
+            Assert.Equal(x1.Length, x2.Length);
+            for (int i = 0; i < x1.Length; i++)
+            {
+                Assert.Equal(g1ExpectedResult[i], x1[i]);
+                Assert.Equal(g2ExpectedResult[i], x2[i]);
+            }
+            #endregion
+        }
+
         //[Fact] 
         //public void TwoDifferentGraphsAsConnectedCliquesWithoutCommonCliques()
         //{

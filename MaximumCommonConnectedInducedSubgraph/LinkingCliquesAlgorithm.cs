@@ -73,6 +73,8 @@ namespace MaximumCommonConnectedInducedSubgraph
             for (int i = 0; i < _g1Cliques.Count; i++)
             {
                 // a) choosing max cliqe for G1 and G2
+                if (g1UsedCliques[i]) continue;
+
                 for (int j = 0; j < _g2Cliques.Count; j++)
                 {
                     if (_g1Cliques[i].Count < _g2Cliques[j].Count)
@@ -115,6 +117,7 @@ namespace MaximumCommonConnectedInducedSubgraph
                         localVertexMapping.Add(new List<int> { _g1Cliques[i][j], _g2Cliques[currentG2clique][j], minMaxDegree });
                     }
 
+                    bool wasConnection = false;
 
                     for (int j = 0; j < cliqueMaxG1.Count; j++) // for each index in maximal clique
                     {
@@ -140,19 +143,25 @@ namespace MaximumCommonConnectedInducedSubgraph
                                                 {
                                                     foreach (var sg2vertex in smallG2)
                                                     {
-                                                        if (_g2.GraphData[localVertexMapping[j][1], sg2vertex] > 0)
+                                                        if (_g2.GraphData[localVertexMapping[j][1], sg2vertex] > 0 && smallG1.Count == smallG2.Count)
                                                         {
                                                             verticesMappings.Add(new KeyValuePair<int, int>(sg1vertex, sg2vertex));
                                                             _g1.verticesDegrees[sg1vertex]--;
                                                             _g2.verticesDegrees[sg2vertex]--;
+                                                            wasConnection = true;
+                                                            break;
                                                         }
 
                                                     }
-
+                                                    //if(wasConnection) break;
                                                 }
-
+                                                else
+                                                {
+                                                    g2UsedCliques[m] = true;
+                                                }
                                             }
                                         }
+                                        //if(wasConnection) break;
                                     }
                                 }
                                 else
@@ -161,7 +170,15 @@ namespace MaximumCommonConnectedInducedSubgraph
                                 }
                             }
                         }
+
+                        if(j == cliqueMaxG1.Count - 1)
+                        {
+                            g1UsedCliques[i] = true;
+                            g2UsedCliques[currentG2clique] = true;
+                        }
                     }
+
+                    if (!wasConnection) break;
                 }
             }
 
