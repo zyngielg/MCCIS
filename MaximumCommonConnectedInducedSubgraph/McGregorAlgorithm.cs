@@ -7,9 +7,10 @@ namespace MaximumCommonConnectedInducedSubgraph
 {
     public class McGregorAlgorithm
     {
-        State state;
-        List<(int, int)> biggestMCCIS_FoundMapping;
-
+        private bool onlyVertices;
+        private State state;
+        private List<(int, int)> biggestMCCIS_FoundMapping;
+        
         public McGregorAlgorithm(Graph g1, Graph g2)
         {
             Graph tempG;
@@ -23,14 +24,21 @@ namespace MaximumCommonConnectedInducedSubgraph
             biggestMCCIS_FoundMapping = new List<(int, int)>();
         }
 
-        public (int[], int[]) GetMaximalCommonSubgraphMapping(string g1Path, string g2Path, int mode = 0)
+        public McGregorAlgorithm(bool onlyVertices)
+        {
+            this.onlyVertices = onlyVertices;
+            biggestMCCIS_FoundMapping = new List<(int, int)>();
+        }
+
+        public (int[], int[]) GetMaximalCommonSubgraphMapping(string g1Path, string g2Path)
         {
             Graph g1 = new Graph();
             Graph g2 = new Graph();
             g1.FillEdgesFromCsv(g1Path);
             g2.FillEdgesFromCsv(g2Path);
+            state = new State(g1, g2);
             (int[], int[]) response;
-            if (mode == 0)
+            if (onlyVertices)
             {
                 PerformMcGregorForVertices(out response);
             }
